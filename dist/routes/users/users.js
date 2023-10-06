@@ -1,0 +1,25 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const createUserService_1 = __importDefault(require("../../services/users/createUserService"));
+const deleteUserService_1 = __importDefault(require("../../services/users/deleteUserService"));
+const readManyUserService_1 = __importDefault(require("../../services/users/readManyUserService"));
+const readOneUserService_1 = __importDefault(require("../../services/users/readOneUserService"));
+const updateUserService_1 = __importDefault(require("../../services/users/updateUserService"));
+const userController_1 = __importDefault(require("../../controllers/userController"));
+const router = (0, express_1.Router)();
+const createUser = new createUserService_1.default();
+const deleteUser = new deleteUserService_1.default();
+const readManyUser = new readManyUserService_1.default();
+const readOneUser = new readOneUserService_1.default();
+const updateUser = new updateUserService_1.default();
+const userController = new userController_1.default(createUser, readManyUser, readOneUser, updateUser, deleteUser);
+router.post('/', (req, res) => userController.createUser(req, res));
+router.get('/', (req, res) => userController.readManyUser(req, res));
+router.get('/:id', (req, res) => userController.readOneUser(req, res));
+router.patch('/:id', (req, res) => userController.updateUser(req, res));
+router.delete('/:id', (req, res) => userController.deleteUser(req, res));
+exports.default = router;

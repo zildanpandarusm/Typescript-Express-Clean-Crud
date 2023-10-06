@@ -1,8 +1,13 @@
 import { UserRepository } from '../../repositories/userRepository';
 
 export default class ReadOneUserService {
+  private userRepository: UserRepository;
+
+  constructor(userRepository: UserRepository) {
+    this.userRepository = userRepository;
+  }
+
   public async handle(id: string) {
-    const userRepository = new UserRepository();
-    return await userRepository.readOne(id);
+    return await this.userRepository.readOne(id);
   }
 }

@@ -3,6 +3,12 @@ import { UserRepository } from '../../repositories/userRepository';
 import { DocInterface } from '../../entities/docInterface';
 
 export default class CreateUserService {
+  private userRepository: UserRepository;
+
+  constructor(userRepository: UserRepository) {
+    this.userRepository = userRepository;
+  }
+
   public async handle(data: DocInterface) {
     const userEntity = new UserEntity({
       name: data.name,
@@ -11,7 +17,6 @@ export default class CreateUserService {
       phoneNumber: data.phoneNumber,
     });
 
-    const userRepository = new UserRepository();
-    return await userRepository.create(userEntity.user);
+    return await this.userRepository.create(userEntity.user);
   }
 }
