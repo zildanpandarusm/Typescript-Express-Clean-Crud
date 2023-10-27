@@ -1,6 +1,8 @@
+import { userValidate } from '../../validation/userValidate';
 import { UserEntity } from '../../entities/users';
 import { UserRepository } from '../../repositories/userRepository';
 import { DocInterface } from '../../entities/docInterface';
+import { ResponseError } from '../../middleware/errorMiddleware';
 
 export default class CreateUserService {
   private userRepository: UserRepository;
@@ -10,6 +12,12 @@ export default class CreateUserService {
   }
 
   public async handle(data: DocInterface) {
+    const userValidation = userValidate(data);
+
+    if (userValidation?.result == false) {
+      throw new ResponseError(400, userValidation.message);
+    }
+
     const userEntity = new UserEntity({
       name: data.name,
       email: data.email,

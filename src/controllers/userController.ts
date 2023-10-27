@@ -1,5 +1,4 @@
-import { userValidate } from '../validation/userValidate';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import CreateUserService from '../services/users/createUserService';
 import ReadManyUserService from '../services/users/readManyUserService';
 import ReadOneUserService from '../services/users/readOneUserService';
@@ -21,68 +20,59 @@ export default class UserController {
     this.readOneUserService = readOneUserService;
   }
 
-  public async createUser(req: Request, res: Response) {
+  public async createUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const userValidation = userValidate(req.body);
-      if (userValidation?.result == false) {
-        return res.status(400).json({ message: userValidation?.message });
-      }
-
       const result = await this.createUserService.handle(req.body);
+
       return res.status(200).json({ message: 'User created successfully', data: result });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
+    } catch (e) {
+      next(e);
     }
   }
 
-  public async readOneUser(req: Request, res: Response) {
+  public async readOneUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
 
       const result = await this.readOneUserService.handle(id);
 
       return res.status(200).json({ message: 'User', data: result });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
+    } catch (e) {
+      next(e);
     }
   }
 
-  public async readManyUser(req: Request, res: Response) {
+  public async readManyUser(req: Request, res: Response, next: NextFunction) {
     try {
       const result = await this.readManyUserService.handle();
 
       return res.status(200).json({ message: 'All users!', data: result });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
+    } catch (e) {
+      next(e);
     }
   }
 
-  public async updateUser(req: Request, res: Response) {
+  public async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-
-      const userValidation = userValidate(req.body);
-      if (userValidation?.result == false) {
-        return res.status(400).json({ message: userValidation?.message });
-      }
 
       const result = await this.updateUserService.handle(id, req.body);
 
       return res.status(200).json({ message: 'User updated successfully!', data: result });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
+    } catch (e) {
+      next(e);
     }
   }
 
-  public async deleteUser(req: Request, res: Response) {
+  public async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
 
       const result = await this.deleteUserService.handle(id);
 
       return res.status(200).json({ message: 'User deleted successfully!' });
-    } catch (error: any) {
-      return res.status(500).json({ message: error.message });
+    } catch (e) {
+      next(e);
     }
   }
 }

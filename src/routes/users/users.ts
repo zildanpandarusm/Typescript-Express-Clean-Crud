@@ -16,14 +16,14 @@ const readOneUser = new ReadOneUserService(userRepository);
 const updateUser = new UpdateUserService(userRepository);
 const userController = new UserController(createUser, readManyUser, readOneUser, updateUser, deleteUser);
 
-router.post('/', (req, res) => userController.createUser(req, res));
+router.post('/', (req, res, next) => userController.createUser(req, res, next));
 
-router.get('/', (req, res) => userController.readManyUser(req, res));
+router.get('/', (req, res, next) => userController.readManyUser(req, res, next));
 
-router.get('/:id', (req, res) => userController.readOneUser(req, res));
+router.get('/:id', (req, res, next) => userController.readOneUser(req, res, next));
 
-router.patch('/:id', (req, res) => userController.updateUser(req, res));
+router.put('/:id', (req, res, next) => userController.updateUser(req, res, next));
 
-router.delete('/:id', (req, res) => userController.deleteUser(req, res));
+router.delete('/:id', (req, res, next) => userController.deleteUser(req, res, next));
 
 export default router;
