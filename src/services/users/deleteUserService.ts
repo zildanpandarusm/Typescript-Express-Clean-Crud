@@ -1,3 +1,4 @@
+import { ResponseError } from '../../middleware/errorMiddleware';
 import { UserRepository } from '../../repositories/userRepository';
 
 export default class DeleteUserService {
@@ -8,6 +9,12 @@ export default class DeleteUserService {
   }
 
   public async handle(id: string) {
+    const user = await this.userRepository.readOne(id);
+
+    if (!user) {
+      throw new ResponseError(404, 'User is not found');
+    }
+
     return await this.userRepository.delete(id);
   }
 }

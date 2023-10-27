@@ -1,3 +1,4 @@
+import { ResponseError } from '../../middleware/errorMiddleware';
 import { UserRepository } from '../../repositories/userRepository';
 
 export default class ReadOneUserService {
@@ -8,6 +9,12 @@ export default class ReadOneUserService {
   }
 
   public async handle(id: string) {
-    return await this.userRepository.readOne(id);
+    const user = await this.userRepository.readOne(id);
+
+    if (!user) {
+      throw new ResponseError(404, 'User is not found');
+    }
+
+    return user;
   }
 }

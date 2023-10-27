@@ -12,6 +12,12 @@ export default class UpdateUserService {
   }
 
   public async handle(id: string, data: DocInterface) {
+    const user = await this.userRepository.readOne(id);
+
+    if (!user) {
+      throw new ResponseError(404, 'User is not found');
+    }
+
     const userValidation = userValidate(data);
 
     if (userValidation?.result == false) {
