@@ -1,6 +1,5 @@
 import supertest from 'supertest';
 import app from '../../src/app';
-import { response } from 'express';
 
 let createdUserId;
 

@@ -1,22 +1,26 @@
-import { db } from '../database/database';
+import Database from '../database/database';
 import { DocInterface } from '../entities/docInterface';
 import { ObjectId } from 'mongodb';
 
-export class UserRepository {
+export class UserRepository extends Database {
+  constructor() {
+    super('user');
+  }
+
   public async create(data: DocInterface) {
-    return await db.collection.insertOne(data);
+    return await this.collection.insertOne(data);
   }
 
   public async readMany() {
-    return await db.collection.find().toArray();
+    return await this.collection.find().toArray();
   }
 
   public async readOne(id: string) {
-    return await db.collection.findOne({ _id: new ObjectId(id) });
+    return await this.collection.findOne({ _id: new ObjectId(id) });
   }
 
   public async update(id: string, data: DocInterface) {
-    return await db.collection.updateOne(
+    return await this.collection.updateOne(
       {
         _id: new ObjectId(id),
       },
@@ -27,6 +31,6 @@ export class UserRepository {
   }
 
   public async delete(id: string) {
-    return await db.collection.deleteOne({ _id: new ObjectId(id) });
+    return await this.collection.deleteOne({ _id: new ObjectId(id) });
   }
 }
