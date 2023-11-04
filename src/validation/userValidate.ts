@@ -3,16 +3,12 @@ import { DocInterface } from '../entities/docInterface';
 export function userValidate(data: DocInterface) {
   const errors = [];
 
-  if (!data.name) {
-    errors.push('Name is required');
+  if (!data.username) {
+    errors.push('Username is required');
   }
 
-  if (!data.email) {
-    errors.push('Email is required');
-  }
-
-  if (!data.address) {
-    errors.push('Address is required');
+  if (!data.phone_number) {
+    errors.push('Phone number is required');
   }
 
   if (errors.length === 0) {

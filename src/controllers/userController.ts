@@ -22,7 +22,13 @@ export default class UserController {
 
   public async createUser(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await this.createUserService.handle(req.body);
+      let result;
+      if (req.files) {
+        let files = req.files;
+        result = await this.createUserService.handle(req.body, files, req.protocol, req.get('host'));
+      } else {
+        result = await this.createUserService.handle(req.body, null, null, null);
+      }
 
       return res.status(200).json({ message: 'User created successfully', data: result });
     } catch (e) {
@@ -55,8 +61,13 @@ export default class UserController {
   public async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-
-      const result = await this.updateUserService.handle(id, req.body);
+      let result;
+      if (req.files) {
+        let files = req.files;
+        result = await this.updateUserService.handle(id, req.body, files, req.protocol, req.get('host'));
+      } else {
+        result = await this.updateUserService.handle(id, req.body, null, null, null);
+      }
 
       return res.status(200).json({ message: 'User updated successfully!', data: result });
     } catch (e) {
