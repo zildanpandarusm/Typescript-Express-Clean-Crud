@@ -6,10 +6,9 @@ export interface UserInterface {
   info?: string;
   security_notification?: boolean;
   reduce_call_data?: boolean;
-  proxy?: string;
   language?: string;
-  linked_device?: string;
-  last_active_at?: number;
+  block_users?: string[];
+  last_active_at?: string;
   created_at?: number;
 }
 

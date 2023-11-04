@@ -19,13 +19,11 @@ export default class UpdateUserService {
     if (!user) {
       throw new ResponseError(404, 'User is not found');
     }
-    console.log('isi avatar_url', user.avatar_url);
 
     let url: string | null = null;
     if (files === null) {
       if (user.avatar_url !== null) {
         url = user.avatar_url;
-        console.log('JIka tidak ada file yang dikirim tapi ada file sebelumnya ', url);
       }
     } else {
       const photo = files.file;
@@ -59,9 +57,8 @@ export default class UpdateUserService {
       info: data.info,
       security_notification: data.security_notification,
       reduce_call_data: data.reduce_call_data,
-      proxy: data.proxy,
       language: data.language,
-      linked_device: data.linked_device,
+      block_users: data.block_users,
       last_active_at: data.last_active_at,
       created_at: user.created_at,
     });

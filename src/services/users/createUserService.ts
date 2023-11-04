@@ -40,9 +40,8 @@ export default class CreateUserService {
       info: data.info,
       security_notification: data.security_notification,
       reduce_call_data: data.reduce_call_data,
-      proxy: data.proxy,
       language: data.language,
-      linked_device: data.linked_device,
+      block_users: data.block_users,
       last_active_at: data.last_active_at,
       created_at: createdAt,
     });

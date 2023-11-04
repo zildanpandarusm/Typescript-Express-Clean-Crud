@@ -1,6 +1,7 @@
 import app from '../../src/app';
 import supertest from 'supertest';
 import { createTestUser, getTestUser, deleteTestUser } from './test-util-users';
+import path from 'path';
 
 describe('GET v1/users/', () => {
   beforeEach(async () => {
@@ -37,10 +38,16 @@ describe('GET /v1/users/:id', function () {
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('User');
     expect(response.body.data._id).toBe(testUser.body.data._id);
-    expect(response.body.data.name).toBe(testUser.body.data.name);
-    expect(response.body.data.email).toBe(testUser.body.data.email);
-    expect(response.body.data.address).toBe(testUser.body.data.address);
-    expect(response.body.data.phoneNumber).toBe(testUser.body.data.phoneNumber);
+    expect(response.body.data.username).toBe(testUser.body.data.username);
+    expect(response.body.data.phone_number).toBe(testUser.body.data.phone_number);
+    expect(response.body.data.display_name).toBe(testUser.body.data.display_name);
+    expect(response.body.data.info).toBe(testUser.body.data.info);
+    expect(response.body.data.security_notification).toBe(testUser.body.data.security_notification);
+    expect(response.body.data.reduce_call_data).toBe(testUser.body.data.reduce_call_data);
+    expect(response.body.data.language).toBe(testUser.body.data.language);
+    expect(response.body.data.last_active_at).toBe(testUser.body.data.last_active_at);
+    expect(response.body.data.created_at).toBeDefined();
+    expect(response.body.data.avatar_url).toBeDefined();
   });
 
   it('should return 404 if user id is not found', async () => {
@@ -53,27 +60,39 @@ describe('GET /v1/users/:id', function () {
 
 describe('POST v1/users/', () => {
   it('should can create new user', async () => {
-    const response = await supertest(app).post('/v1/users').set('Content-Type', 'application/json').send({
-      name: 'Putri',
-      email: 'putri@gmail.com',
-      address: 'Yogyakarta',
-      phoneNumber: '08090000000',
-    });
+    const response = await supertest(app)
+      .post('/v1/users')
+      .field('username', 'donirudh')
+      .field('phone_number', '0812345678')
+      .field('display_name', 'Doni Rudh')
+      .field('info', 'Busy')
+      .field('security_notification', false)
+      .field('reduce_call_data', false)
+      .field('language', 'English')
+      .field('last_active_at', '63539426')
+      .attach('file', path.join(__dirname, '..', 'photo', 'photo_1.jpg'))
+      .set('Content-Type', 'multipart/form-data');
 
     expect(response.status).toBe(200);
     expect(response.body.data.insertedId).toBeDefined();
   });
 
   it('should reject if request is not valid', async () => {
-    const response = await supertest(app).post('/v1/users').set('Content-Type', 'application/json').send({
-      name: '',
-      email: '',
-      address: 'Yogyakarta',
-      phoneNumber: '08090000000',
-    });
+    const response = await supertest(app)
+      .post('/v1/users')
+      .field('username', '')
+      .field('phone_number', '')
+      .field('display_name', 'Doni Rudh')
+      .field('info', 'Busy')
+      .field('security_notification', false)
+      .field('reduce_call_data', false)
+      .field('language', 'English')
+      .field('last_active_at', '63539426')
+      .attach('file', path.join(__dirname, '..', 'photo', 'photo_1.jpg'))
+      .set('Content-Type', 'multipart/form-data');
 
     expect(response.status).toBe(400);
-    expect(response.body.errors).toBe('Name is required, Email is required');
+    expect(response.body.errors).toBe('Username is required, Phone number is required');
   });
 });
 
@@ -91,12 +110,35 @@ describe('PUT /v1/users/:id', function () {
 
     const response = await supertest(app)
       .put('/v1/users/' + testUser.body.data._id)
-      .send({
-        name: 'Nevan',
-        email: 'nevan@gmail.com',
-        address: 'Sleman',
-        phoneNumber: '0823432567',
-      });
+      .field('username', 'donirudh')
+      .field('phone_number', '08123456789')
+      .field('display_name', 'Doni Rudh')
+      .field('info', 'Busy')
+      .field('security_notification', false)
+      .field('reduce_call_data', false)
+      .field('language', 'English')
+      .field('last_active_at', '63539426')
+      .attach('file', path.join(__dirname, '..', 'photo', 'photo_2.jpg'))
+      .set('Content-Type', 'multipart/form-data');
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('User updated successfully!');
+  });
+
+  it('should can update without file', async () => {
+    const testUser = await getTestUser();
+
+    const response = await supertest(app)
+      .put('/v1/users/' + testUser.body.data._id)
+      .field('username', 'donirudh')
+      .field('phone_number', '08123456789')
+      .field('display_name', 'Doni Rudh')
+      .field('info', 'Busy')
+      .field('security_notification', false)
+      .field('reduce_call_data', false)
+      .field('language', 'English')
+      .field('last_active_at', '63539426')
+      .set('Content-Type', 'multipart/form-data');
 
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('User updated successfully!');
@@ -107,24 +149,34 @@ describe('PUT /v1/users/:id', function () {
 
     const response = await supertest(app)
       .put('/v1/users/' + testUser.body.data._id)
-      .send({
-        name: '',
-        email: '',
-        address: 'Sleman',
-        phoneNumber: '0823432567',
-      });
+      .field('username', '')
+      .field('phone_number', '')
+      .field('display_name', 'Doni Rudh')
+      .field('info', 'Busy')
+      .field('security_notification', false)
+      .field('reduce_call_data', false)
+      .field('language', 'English')
+      .field('last_active_at', '63539426')
+      .attach('file', path.join(__dirname, '..', 'photo', 'photo_1.jpg'))
+      .set('Content-Type', 'multipart/form-data');
 
     expect(response.status).toBe(400);
-    expect(response.body.errors).toBe('Name is required, Email is required');
+    expect(response.body.errors).toBe('Username is required, Phone number is required');
   });
 
   it('should reject if user is not found', async () => {
-    const response = await supertest(app).put('/v1/users/653b6a8731907cb1cd505459').send({
-      name: 'Nevan',
-      email: 'nevan@gmail.com',
-      address: 'Sleman',
-      phoneNumber: '0823432567',
-    });
+    const response = await supertest(app)
+      .put('/v1/users/653b6a8731907cb1cd505459')
+      .field('username', 'donirudh')
+      .field('phone_number', '08123456789')
+      .field('display_name', 'Doni Rudh')
+      .field('info', 'Busy')
+      .field('security_notification', false)
+      .field('reduce_call_data', false)
+      .field('language', 'English')
+      .field('last_active_at', '63539426')
+      .attach('file', path.join(__dirname, '..', 'photo', 'photo_1.jpg'))
+      .set('Content-Type', 'multipart/form-data');
 
     expect(response.status).toBe(404);
     expect(response.body.errors).toBe('User is not found');
