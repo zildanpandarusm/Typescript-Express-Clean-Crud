@@ -1,13 +1,13 @@
-import supertest from 'supertest';
+import request from 'supertest';
 import app from '../../src/app';
 import path from 'path';
 
 let createdUserId;
 
-const filePath = path.join(__dirname, '..', 'photo', 'photo_1.jpg');
+let filePath = path.join(__dirname, '..', 'photo', 'photo_1.jpg');
 
 export const createTestUser = async () => {
-  const response = await supertest(app)
+  const response = await request(app)
     .post('/v1/users')
     .field('username', 'lintang271')
     .field('phone_number', '0812345678')
@@ -25,13 +25,13 @@ export const createTestUser = async () => {
 
 export const getTestUser = async () => {
   if (createdUserId) {
-    const response = await supertest(app).get(`/v1/users/${createdUserId}`);
+    const response = await request(app).get(`/v1/users/${createdUserId}`);
     return response;
   }
 };
 
 export const deleteTestUser = async () => {
   if (createdUserId) {
-    await supertest(app).delete(`/v1/users/${createdUserId}`);
+    await request(app).delete(`/v1/users/${createdUserId}`);
   }
 };

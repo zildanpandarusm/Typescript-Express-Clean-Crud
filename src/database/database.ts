@@ -22,9 +22,4 @@ export default class Database {
       throw error;
     }
   }
-
-  async closeConnection(): Promise<void> {
-    await this.client.close();
-    console.log('Koneksi ke MongoDB ditutup');
-  }
 }
