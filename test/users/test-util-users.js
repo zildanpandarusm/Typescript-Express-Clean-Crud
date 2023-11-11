@@ -1,24 +1,19 @@
 import request from 'supertest';
 import app from '../../src/app';
-import path from 'path';
 
 let createdUserId;
 
-let filePath = path.join(__dirname, '..', 'photo', 'photo_1.jpg');
-
 export const createTestUser = async () => {
-  const response = await request(app)
-    .post('/v1/users')
-    .field('username', 'lintang271')
-    .field('phone_number', '0812345678')
-    .field('display_name', 'lintang')
-    .field('info', 'Busy')
-    .field('security_notification', false)
-    .field('reduce_call_data', false)
-    .field('language', 'English')
-    .field('last_active_at', '3215683579')
-    .attach('file', filePath)
-    .set('Content-Type', 'multipart/form-data');
+  const response = await request(app).post('/v1/users').send({
+    username: 'lintang271',
+    phone_number: '0812345678',
+    display_name: 'lintang',
+    info: 'Busy',
+    security_notification: false,
+    reduce_call_data: false,
+    language: 'English',
+    last_active_at: 3215683579,
+  });
 
   createdUserId = response.body.data.insertedId;
 };

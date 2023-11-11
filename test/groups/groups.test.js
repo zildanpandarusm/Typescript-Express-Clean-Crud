@@ -8,7 +8,7 @@ afterAll(() => {
   console.log('Server ditutup');
 });
 
-describe('GET v1/groups/', () => {
+describe('GET /v1/groups/', () => {
   beforeEach(async () => {
     await createTestGroup();
   });
@@ -92,6 +92,16 @@ describe('POST v1/groups/', () => {
 
     expect(response.status).toBe(200);
     expect(response.body.data.insertedId).toBeDefined();
+  });
+
+  it('should reject if request typeof description is not valid', async () => {
+    const response = await request(app).post('/v1/groups').send({
+      name: 'grup belajar ipa',
+      description: 812345678,
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toBe('name dan description harus bertipe string');
   });
 
   it('should reject if request is not valid', async () => {
@@ -201,7 +211,6 @@ describe('DELETE /v1/groups/:id', function () {
     expect(result.body.message).toBe('Group deleted successfully!');
 
     testGroup = await getTestGroup();
-    console.log(testGroup.body.errors);
     expect(testGroup.status).toBe(404);
     expect(testGroup.body.errors).toBe('Group is not found');
   });

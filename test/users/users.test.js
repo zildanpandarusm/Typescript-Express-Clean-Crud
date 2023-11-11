@@ -2,14 +2,13 @@ import request from 'supertest';
 import app, { server } from '../../src/app';
 import { createTestUser, getTestUser, deleteTestUser } from './test-util-users';
 import path from 'path';
-import Database from '../../src/database/database';
 
 afterAll(() => {
   server.close();
   console.log('Server ditutup');
 });
 
-describe('GET v1/users/', () => {
+describe('GET /v1/users/', () => {
   beforeEach(async () => {
     await createTestUser();
   });
@@ -19,9 +18,10 @@ describe('GET v1/users/', () => {
   });
 
   it('should return the expected response', async () => {
-    const response = await request(app).get('/v1/users').set('Host', `localhost:3000`);
+    const response = await request(app).get('/v1/users');
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('All users!');
+
     expect(Array.isArray(response.body.data)).toBe(true);
   });
 });
@@ -52,7 +52,6 @@ describe('GET /v1/users/:id', function () {
     expect(response.body.data.language).toBe(testUser.body.data.language);
     expect(response.body.data.last_active_at).toBe(testUser.body.data.last_active_at);
     expect(response.body.data.created_at).toBeDefined();
-    expect(response.body.data.avatar_url).toBeDefined();
   });
 
   it('should return 404 if user id is not found', async () => {
@@ -72,53 +71,104 @@ describe('GET /v1/users/:id', function () {
 
 describe('POST v1/users/', () => {
   it('should can create new user', async () => {
-    const response = await request(app)
-      .post('/v1/users')
-      .field('username', 'donirudh')
-      .field('phone_number', '0812345678')
-      .field('display_name', 'Doni Rudh')
-      .field('info', 'Busy')
-      .field('security_notification', false)
-      .field('reduce_call_data', false)
-      .field('language', 'English')
-      .field('last_active_at', '63539426')
-      .attach('file', path.join(__dirname, '..', 'photo', 'photo_1.jpg'))
-      .set('Content-Type', 'multipart/form-data');
+    const response = await request(app).post('/v1/users').send({
+      username: 'donirudh',
+      phone_number: '0812345678',
+      display_name: 'doni rudhi',
+      info: 'Busy',
+      security_notification: false,
+      reduce_call_data: false,
+      language: 'English',
+      last_active_at: 3215683579,
+    });
 
     expect(response.status).toBe(200);
     expect(response.body.data.insertedId).toBeDefined();
   });
 
-  it('should can create new user without file', async () => {
-    const response = await request(app)
-      .post('/v1/users')
-      .field('username', 'donirudh')
-      .field('phone_number', '0812345678')
-      .field('display_name', 'Doni Rudh')
-      .field('info', 'Busy')
-      .field('security_notification', false)
-      .field('reduce_call_data', false)
-      .field('language', 'English')
-      .field('last_active_at', '63539426')
-      .set('Content-Type', 'multipart/form-data');
+  it('should can create new user with file', async () => {
+    const response = await request(app).post('/v1/users').field('username', 'donirudh').field('phone_number', '0812345678').attach('file', path.join(__dirname, '..', 'photo', 'photo_1.jpg')).set('Content-Type', 'multipart/form-data');
 
     expect(response.status).toBe(200);
     expect(response.body.data.insertedId).toBeDefined();
+  });
+
+  it('should reject if typeof phone_number is not valid', async () => {
+    const response = await request(app).post('/v1/users').send({
+      username: 'donirudh',
+      phone_number: 812345678,
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toBe('username dan phone_number harus bertipe string');
+  });
+
+  it('should reject if typeof display_name is not valid', async () => {
+    const response = await request(app).post('/v1/users').send({
+      username: 'donirudh',
+      phone_number: '0812345678',
+      display_name: 999,
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toBe('display_name harus bertipe string atau tidak terdefinisi');
+  });
+
+  it('should reject if typeof security_notification is not valid', async () => {
+    const response = await request(app).post('/v1/users').send({
+      username: 'donirudh',
+      phone_number: '0812345678',
+      security_notification: 'gagal',
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toBe('security_notification harus bertipe boolean atau tidak terdefinisi');
+  });
+
+  it('should reject if typeof reduce_call_data is not valid', async () => {
+    const response = await request(app).post('/v1/users').send({
+      username: 'donirudh',
+      phone_number: '0812345678',
+      reduce_call_data: 'gagal',
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toBe('reduce_call_data harus bertipe boolean atau tidak terdefinisi');
+  });
+
+  it('should reject if typeof language is not valid', async () => {
+    const response = await request(app).post('/v1/users').send({
+      username: 'donirudh',
+      phone_number: '0812345678',
+      language: false,
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toBe('language harus bertipe string atau tidak terdefinisi');
+  });
+
+  it('should reject if typeof last_active_at is not valid', async () => {
+    const response = await request(app).post('/v1/users').send({
+      username: 'donirudh',
+      phone_number: '0812345678',
+      last_active_at: false,
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toBe('last_active_at harus bertipe string atau tidak terdefinisi');
   });
 
   it('should reject if request is not valid', async () => {
-    const response = await request(app)
-      .post('/v1/users')
-      .field('username', '')
-      .field('phone_number', '')
-      .field('display_name', 'Doni Rudh')
-      .field('info', 'Busy')
-      .field('security_notification', false)
-      .field('reduce_call_data', false)
-      .field('language', 'English')
-      .field('last_active_at', '63539426')
-      .attach('file', path.join(__dirname, '..', 'photo', 'photo_1.jpg'))
-      .set('Content-Type', 'multipart/form-data');
+    const response = await request(app).post('/v1/users').send({
+      username: '',
+      phone_number: '',
+      display_name: 'doni rudhi',
+      info: 'Busy',
+      security_notification: false,
+      reduce_call_data: false,
+      language: 'English',
+      last_active_at: 3215683579,
+    });
 
     expect(response.status).toBe(400);
     expect(response.body.errors).toBe('Username is required, Phone number is required');
@@ -139,38 +189,49 @@ describe('PUT /v1/users/:id', function () {
 
     const response = await request(app)
       .put('/v1/users/' + testUser.body.data._id)
+      .send({
+        username: 'donirudh',
+        phone_number: '0812345678',
+        display_name: 'doni rudhi',
+        info: 'Busy',
+        security_notification: false,
+        reduce_call_data: false,
+        language: 'English',
+        last_active_at: 3215683579,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe('User updated successfully!');
+  });
+
+  it('should can update with file', async () => {
+    const testUser = await getTestUser();
+
+    const response = await request(app)
+      .put('/v1/users/' + testUser.body.data._id)
       .field('username', 'donirudh')
-      .field('phone_number', '08123456789')
-      .field('display_name', 'Doni Rudh')
-      .field('info', 'Busy')
-      .field('security_notification', false)
-      .field('reduce_call_data', false)
-      .field('language', 'English')
-      .field('last_active_at', '63539426')
-      .attach('file', path.join(__dirname, '..', 'photo', 'photo_2.jpg'))
+      .field('phone_number', '0812345678')
+      .attach('file', path.join(__dirname, '..', 'photo', 'photo_1.jpg'))
       .set('Content-Type', 'multipart/form-data');
 
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('User updated successfully!');
   });
 
-  it('should can update without file', async () => {
-    const testUser = await getTestUser();
+  it('should reject if request typeof value is not valid', async () => {
+    const response = await request(app).post('/v1/users').send({
+      username: 'donirudh',
+      phone_number: 812345678,
+      display_name: 'doni rudhi',
+      info: 'Busy',
+      security_notification: false,
+      reduce_call_data: false,
+      language: 'English',
+      last_active_at: 3215683579,
+    });
 
-    const response = await request(app)
-      .put('/v1/users/' + testUser.body.data._id)
-      .field('username', 'donirudh')
-      .field('phone_number', '08123456789')
-      .field('display_name', 'Doni Rudh')
-      .field('info', 'Busy')
-      .field('security_notification', false)
-      .field('reduce_call_data', false)
-      .field('language', 'English')
-      .field('last_active_at', '63539426')
-      .set('Content-Type', 'multipart/form-data');
-
-    expect(response.status).toBe(200);
-    expect(response.body.message).toBe('User updated successfully!');
+    expect(response.status).toBe(400);
+    expect(response.body.errors).toBe('username dan phone_number harus bertipe string');
   });
 
   it('should reject if request is invalid', async () => {
@@ -178,34 +239,32 @@ describe('PUT /v1/users/:id', function () {
 
     const response = await request(app)
       .put('/v1/users/' + testUser.body.data._id)
-      .field('username', '')
-      .field('phone_number', '')
-      .field('display_name', 'Doni Rudh')
-      .field('info', 'Busy')
-      .field('security_notification', false)
-      .field('reduce_call_data', false)
-      .field('language', 'English')
-      .field('last_active_at', '63539426')
-      .attach('file', path.join(__dirname, '..', 'photo', 'photo_1.jpg'))
-      .set('Content-Type', 'multipart/form-data');
+      .send({
+        username: '',
+        phone_number: '',
+        display_name: 'doni rudhi',
+        info: 'Busy',
+        security_notification: false,
+        reduce_call_data: false,
+        language: 'English',
+        last_active_at: 3215683579,
+      });
 
     expect(response.status).toBe(400);
     expect(response.body.errors).toBe('Username is required, Phone number is required');
   });
 
   it('should reject if user is not found', async () => {
-    const response = await request(app)
-      .put('/v1/users/653b6a8731907cb1cd505459')
-      .field('username', 'donirudh')
-      .field('phone_number', '08123456789')
-      .field('display_name', 'Doni Rudh')
-      .field('info', 'Busy')
-      .field('security_notification', false)
-      .field('reduce_call_data', false)
-      .field('language', 'English')
-      .field('last_active_at', '63539426')
-      .attach('file', path.join(__dirname, '..', 'photo', 'photo_1.jpg'))
-      .set('Content-Type', 'multipart/form-data');
+    const response = await request(app).put('/v1/users/653b6a8731907cb1cd505459').send({
+      username: 'donirudh',
+      phone_number: '0812345678',
+      display_name: 'doni rudhi',
+      info: 'Busy',
+      security_notification: false,
+      reduce_call_data: false,
+      language: 'English',
+      last_active_at: 3215683579,
+    });
 
     expect(response.status).toBe(404);
     expect(response.body.errors).toBe('User is not found');
@@ -229,7 +288,6 @@ describe('DELETE /v1/users/:id', function () {
     expect(result.body.message).toBe('User deleted successfully!');
 
     testUser = await getTestUser();
-    console.log(testUser.body.errors);
     expect(testUser.status).toBe(404);
     expect(testUser.body.errors).toBe('User is not found');
   });
