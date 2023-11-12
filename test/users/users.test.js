@@ -17,7 +17,7 @@ describe('GET /v1/users', () => {
     await deleteTestUser();
   });
 
-  it('should return the expected response', async () => {
+  it('should return the expected response users', async () => {
     const response = await request(app).get('/v1/users');
 
     expect(response.status).toBe(200);

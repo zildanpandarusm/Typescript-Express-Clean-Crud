@@ -7,7 +7,7 @@ afterAll(() => {
   console.log('Server ditutup');
 });
 
-describe('GET /v1/conversations', () => {
+describe('GET /v1/conversations/', () => {
   beforeEach(async () => {
     await createTestConversation();
   });
@@ -16,7 +16,7 @@ describe('GET /v1/conversations', () => {
     await deleteTestConversation();
   });
 
-  it('should return the expected response', async () => {
+  it('should return the expected response conversations', async () => {
     const response = await request(app).get('/v1/conversations');
 
     expect(response.status).toBe(200);

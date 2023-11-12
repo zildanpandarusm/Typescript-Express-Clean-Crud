@@ -17,7 +17,7 @@ describe('GET /v1/groups', () => {
     await deleteTestGroup();
   });
 
-  it('should return the expected response', async () => {
+  it('should return the expected response groups', async () => {
     const response = await request(app).get('/v1/groups');
 
     expect(response.status).toBe(200);
