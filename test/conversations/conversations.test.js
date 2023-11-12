@@ -7,7 +7,7 @@ afterAll(() => {
   console.log('Server ditutup');
 });
 
-describe('GET /v1/conversations/', () => {
+describe('GET /v1/conversations', () => {
   beforeEach(async () => {
     await createTestConversation();
   });
@@ -18,6 +18,7 @@ describe('GET /v1/conversations/', () => {
 
   it('should return the expected response', async () => {
     const response = await request(app).get('/v1/conversations');
+
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('All conversations!');
 
@@ -86,19 +87,19 @@ describe('POST v1/conversations/', () => {
     });
 
     expect(response.status).toBe(400);
-    expect(response.body.errors).toBe('user_id dan group_id harus bertipe string');
+    expect(response.body.errors).toBe('user_id harus bertipe string');
   });
 
   it('should reject if request is not valid', async () => {
     const response = await request(app).post('/v1/conversations').send({
       user_id: '',
-      group_id: '',
+      group_id: '75gh5dfgfh4wrfdhgi',
       is_pinned: false,
       is_muted: false,
     });
 
     expect(response.status).toBe(400);
-    expect(response.body.errors).toBe('User ID is required, Group ID is required');
+    expect(response.body.errors).toBe('User ID is required');
   });
 });
 
@@ -134,13 +135,13 @@ describe('PUT /v1/conversations/:id', function () {
       .put('/v1/conversations/' + testConversation.body.data._id)
       .send({
         user_id: '',
-        group_id: '',
+        group_id: '645gfjgd42f35hcfk',
         is_pinned: false,
         is_muted: false,
       });
 
     expect(response.status).toBe(400);
-    expect(response.body.errors).toBe('User ID is required, Group ID is required');
+    expect(response.body.errors).toBe('User ID is required');
   });
 
   it('should reject if conversation is not found', async () => {

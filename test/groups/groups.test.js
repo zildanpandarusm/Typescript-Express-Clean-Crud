@@ -8,7 +8,7 @@ afterAll(() => {
   console.log('Server ditutup');
 });
 
-describe('GET /v1/groups/', () => {
+describe('GET /v1/groups', () => {
   beforeEach(async () => {
     await createTestGroup();
   });
@@ -19,6 +19,7 @@ describe('GET /v1/groups/', () => {
 
   it('should return the expected response', async () => {
     const response = await request(app).get('/v1/groups');
+
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('All groups!');
 

@@ -8,7 +8,7 @@ afterAll(() => {
   console.log('Server ditutup');
 });
 
-describe('GET /v1/users/', () => {
+describe('GET /v1/users', () => {
   beforeEach(async () => {
     await createTestUser();
   });
@@ -19,6 +19,7 @@ describe('GET /v1/users/', () => {
 
   it('should return the expected response', async () => {
     const response = await request(app).get('/v1/users');
+
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('All users!');
 

@@ -2,7 +2,7 @@ import { ResponseError } from '../middleware/errorMiddleware';
 
 export interface ConversationInterface {
   user_id: string;
-  group_id: string;
+  group_id?: string;
   is_pinned?: boolean;
   is_muted?: boolean;
   created_at?: number;
@@ -12,8 +12,12 @@ export class ConversationEntity {
   public conversation: ConversationInterface;
 
   constructor(conversation: ConversationInterface) {
-    if (typeof conversation.user_id !== 'string' || typeof conversation.group_id !== 'string') {
-      throw new ResponseError(400, 'user_id dan group_id harus bertipe string');
+    if (typeof conversation.user_id !== 'string') {
+      throw new ResponseError(400, 'user_id harus bertipe string');
+    }
+
+    if (conversation.group_id !== undefined && typeof conversation.group_id !== 'string') {
+      throw new ResponseError(400, 'group_id harus bertipe boolean jika didefinisikan');
     }
 
     if (conversation.is_pinned !== undefined && typeof conversation.is_pinned !== 'boolean') {
