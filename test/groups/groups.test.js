@@ -3,17 +3,18 @@ import request from 'supertest';
 import { createTestGroup, getTestGroup, deleteTestGroup } from './test-util-groups';
 import path from 'path';
 
-afterAll(() => {
-  server.close();
+afterAll(async () => {
+  await server.close();
   console.log('Server ditutup');
+  await new Promise(resolve => setTimeout(() => resolve(), 1000));
 });
 
-describe('GET /v1/groups', () => {
-  beforeEach(async () => {
+describe('GET /v1/groups/', () => {
+  beforeAll(async () => {
     await createTestGroup();
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await deleteTestGroup();
   });
 

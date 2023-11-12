@@ -3,17 +3,18 @@ import app, { server } from '../../src/app';
 import { createTestUser, getTestUser, deleteTestUser } from './test-util-users';
 import path from 'path';
 
-afterAll(() => {
-  server.close();
+afterAll(async () => {
+  await server.close();
   console.log('Server ditutup');
+  await new Promise((resolve) => setTimeout(() => resolve(), 1000));
 });
 
-describe('GET /v1/users', () => {
-  beforeEach(async () => {
+describe('GET /v1/users/', () => {
+  beforeAll(async () => {
     await createTestUser();
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await deleteTestUser();
   });
 

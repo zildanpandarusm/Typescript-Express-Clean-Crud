@@ -17,8 +17,10 @@ app.use('/upload', express.static(path.join(__dirname, 'uploads')));
 app.use('/v1', userRoutes);
 app.use(errorMiddleware);
 
-export const server = app.listen(process.env.PORT, () => {
-  console.log('Server berjalan di port 3000');
-});
-
 export default app;
+
+const port = process.env.PORT || 3000;
+
+export const server = app.listen(port, () => {
+  console.log(`Server berjalan di port ${port}`);
+});

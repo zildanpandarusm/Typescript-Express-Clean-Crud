@@ -2,17 +2,18 @@ import app, { server } from '../../src/app';
 import request from 'supertest';
 import { createTestConversation, getTestConversation, deleteTestConversation } from './test-util-conversations';
 
-afterAll(() => {
-  server.close();
+afterAll(async () => {
+  await server.close();
   console.log('Server ditutup');
+  await new Promise((resolve) => setTimeout(() => resolve(), 1000));
 });
 
 describe('GET /v1/conversations/', () => {
-  beforeEach(async () => {
+  beforeAll(async () => {
     await createTestConversation();
   });
 
-  afterEach(async () => {
+  afterAll(async () => {
     await deleteTestConversation();
   });
 
