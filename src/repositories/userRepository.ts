@@ -19,6 +19,10 @@ export class UserRepository extends Database {
     return await this.collection.findOne({ _id: new ObjectId(id) });
   }
 
+  public async getUserByEmail(email: string) {
+    return await this.collection.findOne({ email: email });
+  }
+
   public async update(id: string, data: DocInterface) {
     return await this.collection.updateOne(
       {

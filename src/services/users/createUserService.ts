@@ -3,7 +3,8 @@ import { UserEntity } from '../../entities/users';
 import { UserRepository } from '../../repositories/userRepository';
 import { DocInterface } from '../../entities/docInterface';
 import { ResponseError } from '../../middleware/errorMiddleware';
-import path from 'path';
+import bcrypt from 'bcrypt';
+import ReadOneUserService from './readOneUserService';
 
 export default class CreateUserService {
   private userRepository: UserRepository;
@@ -12,40 +13,43 @@ export default class CreateUserService {
     this.userRepository = userRepository;
   }
 
-  public async handle(data: DocInterface, files: any, protocol: any, host: any) {
-    let url = null;
-    if (files !== null) {
-      const photo = files.file;
-      const uploadDir = path.join(__dirname, '../../uploads');
-      const fileName = `${Date.now()}_${photo.name}`;
-
-      url = `${protocol}://${host}/upload/${fileName}`;
-      const filePath = path.join(uploadDir, fileName);
-      await photo.mv(filePath);
-    }
-
+  public async handle(data: DocInterface) {
     const userValidation = userValidate(data);
 
     if (userValidation?.result == false) {
       throw new ResponseError(400, userValidation.message);
     }
 
-    let createdAt: number = Math.floor(new Date().getTime() / 1000);
+    if ((await this.userRepository.getUserByEmail(data.email)) !== null) {
+      throw new ResponseError(400, 'Email already registered');
+    }
+
+    const hashedPass = await bcrypt.hash(data.password, 12);
+    const created_at = new Date();
 
     const userEntity = new UserEntity({
       username: data.username,
-      phone_number: data.phone_number,
-      avatar_url: url,
-      display_name: data.display_name,
-      info: data.info,
-      security_notification: data.security_notification,
-      reduce_call_data: data.reduce_call_data,
-      language: data.language,
-      block_users: data.block_users,
-      last_active_at: data.last_active_at,
-      created_at: createdAt,
+      email: data.email,
+      password: hashedPass,
+      photo: data.photo,
+      role: data.role,
+      created_at: created_at,
     });
 
-    return await this.userRepository.create(userEntity.user);
+    let userData = userEntity.CheckData();
+
+    let user = await this.userRepository.create(userData);
+
+    const readOneUser = new ReadOneUserService(this.userRepository);
+    const dataUser = await readOneUser.handle(user.insertedId.toString());
+
+    return {
+      _id: dataUser._id,
+      username: dataUser.username,
+      email: dataUser.email,
+      photo: dataUser.photo,
+      role: dataUser.role,
+      created_at: dataUser.created_at,
+    };
   }
 }

@@ -3,8 +3,8 @@ import { UserRepository } from '../../repositories/userRepository';
 import { DocInterface } from '../../entities/docInterface';
 import { ResponseError } from '../../middleware/errorMiddleware';
 import { userValidate } from '../../validation/userValidate';
-import path from 'path';
-import fs from 'fs';
+import ReadOneUserService from './readOneUserService';
+import bcrypt from 'bcrypt';
 
 export default class UpdateUserService {
   private userRepository: UserRepository;
@@ -13,34 +13,18 @@ export default class UpdateUserService {
     this.userRepository = userRepository;
   }
 
-  public async handle(id: string, data: DocInterface, files: any, protocol: any, host: any) {
+  public async handle(id: string, data: DocInterface) {
     let user = await this.userRepository.readOne(id);
 
     if (!user) {
       throw new ResponseError(404, 'User is not found');
     }
 
-    let url: string | null = null;
-    if (files === null) {
-      if (user.avatar_url !== null) {
-        url = user.avatar_url;
-      }
+    let hashPassword;
+    if (data.password === '' || data.password === null) {
+      hashPassword = user.password;
     } else {
-      const photo = files.file;
-      const uploadDir = path.join(__dirname, '../../uploads');
-      const fileName = `${Date.now()}_${photo.name}`;
-
-      url = `${protocol}://${host}/upload/${fileName}`;
-      const filePath = path.join(uploadDir, fileName);
-
-      if (user.avatar_url !== null) {
-        const segments = user.avatar_url.split('/');
-        const oldName = segments[segments.length - 1];
-        const pathFile = path.join(__dirname, `../../uploads/${oldName}`);
-        fs.unlinkSync(pathFile);
-      }
-
-      await photo.mv(filePath);
+      hashPassword = await bcrypt.hash(data.password, 12);
     }
 
     const userValidation = userValidate(data);
@@ -51,18 +35,27 @@ export default class UpdateUserService {
 
     const userEntity = new UserEntity({
       username: data.username,
-      phone_number: data.phone_number,
-      avatar_url: url,
-      display_name: data.display_name,
-      info: data.info,
-      security_notification: data.security_notification,
-      reduce_call_data: data.reduce_call_data,
-      language: data.language,
-      block_users: data.block_users,
-      last_active_at: data.last_active_at,
+      email: user.email,
+      password: hashPassword,
+      photo: data.photo,
+      role: data.role,
       created_at: user.created_at,
     });
 
-    return await this.userRepository.update(id, userEntity.user);
+    let userData = userEntity.CheckData();
+
+    await this.userRepository.update(id, userData);
+
+    const readOneUser = new ReadOneUserService(this.userRepository);
+    const dataUser = await readOneUser.handle(id);
+
+    return {
+      _id: dataUser._id,
+      username: dataUser.username,
+      email: dataUser.email,
+      photo: dataUser.photo,
+      role: dataUser.role,
+      created_at: dataUser.created_at,
+    };
   }
 }

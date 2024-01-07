@@ -7,8 +7,16 @@ export function userValidate(data: DocInterface) {
     errors.push('Username is required');
   }
 
-  if (!data.phone_number) {
-    errors.push('Phone number is required');
+  if (!data.email) {
+    errors.push('Email is required');
+  }
+
+  if (!data.password) {
+    errors.push('Password is required');
+  }
+
+  if (!data.confirmPassword) {
+    errors.push('Konfirmasi password is required');
   }
 
   if (errors.length === 0) {

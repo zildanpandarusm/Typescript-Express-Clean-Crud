@@ -2,36 +2,21 @@ import Database from '../database/database';
 import { DocInterface } from '../entities/docInterface';
 import { ObjectId } from 'mongodb';
 
-export class GroupRepository extends Database {
+export class AttendanceRepository extends Database {
   constructor() {
-    super('group');
+    super('attendance');
   }
 
   public async create(data: DocInterface) {
     return await this.collection.insertOne(data);
   }
 
-  public async readMany() {
-    return await this.collection.find().toArray();
+  public async readMany(idUser: string) {
+    return await this.collection.find({ id_user: idUser }).toArray();
   }
 
   public async readOne(id: string) {
     return await this.collection.findOne({ _id: new ObjectId(id) });
-  }
-
-  public async getGroupByName(name: string) {
-    return await this.collection.findOne({ name: name });
-  }
-
-  public async update(id: string, data: DocInterface) {
-    return await this.collection.updateOne(
-      {
-        _id: new ObjectId(id),
-      },
-      {
-        $set: data,
-      }
-    );
   }
 
   public async delete(id: string) {

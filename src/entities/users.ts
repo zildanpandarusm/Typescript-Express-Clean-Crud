@@ -2,54 +2,65 @@ import { ResponseError } from '../middleware/errorMiddleware';
 
 export interface UserInterface {
   username: string;
-  phone_number: string;
-  avatar_url?: string | null;
-  display_name?: string;
-  info?: string;
-  security_notification?: boolean;
-  reduce_call_data?: boolean;
-  language?: string;
-  block_users?: [];
-  last_active_at?: number;
-  created_at?: number;
+  email: string;
+  password: string;
+  photo?: string;
+  role?: string;
+  created_at: Date;
 }
 
 export class UserEntity {
-  public user: UserInterface;
+  private user: UserInterface;
 
   constructor(user: UserInterface) {
-    if (typeof user.username !== 'string' || typeof user.phone_number !== 'string') {
-      throw new ResponseError(400, 'username dan phone_number harus bertipe string');
+    this.user = {
+      username: user.username,
+      email: user.email.toLowerCase(),
+      password: user.password,
+      photo: user.photo,
+      role: user.role?.toLowerCase() || 'user',
+      created_at: user.created_at || new Date(),
+    };
+  }
+
+  CheckData() {
+    const errors: string[] = [];
+
+    if (typeof this.user.username !== 'string') {
+      errors.push('username must be a string.');
     }
 
-    if (user.avatar_url !== undefined && user.avatar_url !== null && typeof user.avatar_url !== 'string') {
-      throw new ResponseError(400, 'avatar_url harus bertipe string atau null');
+    if (typeof this.user.email !== 'string') {
+      errors.push('email must be a string.');
     }
 
-    if (user.display_name !== undefined && typeof user.display_name !== 'string') {
-      throw new ResponseError(400, 'display_name harus bertipe string atau tidak terdefinisi');
+    if (typeof this.user.password !== 'string') {
+      errors.push('password must be a string.');
     }
 
-    if (user.security_notification !== undefined && typeof user.security_notification !== 'boolean') {
-      throw new ResponseError(400, 'security_notification harus bertipe boolean atau tidak terdefinisi');
+    if (this.user.photo !== undefined && typeof this.user.photo !== 'string') {
+      errors.push('photo must be a string or null.');
     }
 
-    if (user.reduce_call_data !== undefined && typeof user.reduce_call_data !== 'boolean') {
-      throw new ResponseError(400, 'reduce_call_data harus bertipe boolean atau tidak terdefinisi');
+    if (this.user.role !== undefined && typeof this.user.role !== 'string') {
+      errors.push('role must be a string or undefined.');
     }
 
-    if (user.language !== undefined && typeof user.language !== 'string') {
-      throw new ResponseError(400, 'language harus bertipe string atau tidak terdefinisi');
+    if (this.user.created_at !== undefined && !(this.user.created_at instanceof Date)) {
+      errors.push('created_at must be a Date.');
     }
 
-    if (user.last_active_at !== undefined && typeof user.last_active_at !== 'number') {
-      throw new ResponseError(400, 'last_active_at harus bertipe string atau tidak terdefinisi');
+    if (errors.length > 0) {
+      throw new ResponseError(400, errors.join(' '));
     }
 
-    if (user.created_at !== undefined && typeof user.created_at !== 'number') {
-      throw new ResponseError(400, 'created_at harus bertipe number atau tidak terdefinisi');
-    }
-
-    this.user = user;
+    return {
+      username: this.user.username,
+      email: this.user.email,
+      password: this.user.password,
+      photo: this.user.photo,
+      role: this.user.role,
+      created_at: this.user.created_at,
+    };
   }
 }

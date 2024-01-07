@@ -9,9 +9,9 @@ export default class DeleteGroupService {
   }
 
   public async handle(id: string) {
-    const user = await this.groupRepository.readOne(id);
+    const group = await this.groupRepository.readOne(id);
 
-    if (!user) {
+    if (!group) {
       throw new ResponseError(404, 'Group is not found');
     }
 

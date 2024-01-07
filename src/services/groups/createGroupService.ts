@@ -3,43 +3,46 @@ import { GroupEntity } from '../../entities/groups';
 import { GroupRepository } from '../../repositories/groupRepository';
 import { DocInterface } from '../../entities/docInterface';
 import { ResponseError } from '../../middleware/errorMiddleware';
-import path from 'path';
+import ReadOneGroupService from './readOneGroupService';
 
-export default class CreateGroupService {
+export default class CreateUserService {
   private groupRepository: GroupRepository;
 
   constructor(groupRepository: GroupRepository) {
     this.groupRepository = groupRepository;
   }
 
-  public async handle(data: DocInterface, files: any, protocol: any, host: any) {
-    let url = null;
-    if (files !== null) {
-      const photo = files.file;
-      const uploadDir = path.join(__dirname, '../../uploads');
-      const fileName = `${Date.now()}_${photo.name}`;
-
-      url = `${protocol}://${host}/upload/${fileName}`;
-      const filePath = path.join(uploadDir, fileName);
-      await photo.mv(filePath);
-    }
-
+  public async handle(idAdmin: string, data: DocInterface) {
     const groupValidation = groupValidate(data);
 
     if (groupValidation?.result == false) {
       throw new ResponseError(400, groupValidation.message);
     }
 
-    let createdAt: number = Math.floor(new Date().getTime() / 1000);
+    if ((await this.groupRepository.getGroupByName(data.name)) !== null) {
+      throw new ResponseError(400, 'Name already exists');
+    }
 
     const groupEntity = new GroupEntity({
       name: data.name,
-      description: data.description,
-      avatar_url: url,
-      user_member: data.user_member,
-      created_at: createdAt,
+      id_admin: idAdmin,
+      created_at: data.created_at,
     });
 
-    return await this.groupRepository.create(groupEntity.group);
+    let groupData = groupEntity.CheckData();
+
+    let group = await this.groupRepository.create(groupData);
+
+    const readOneGroup = new ReadOneGroupService(this.groupRepository);
+    const dataGroup = await readOneGroup.handle(group.insertedId.toString());
+
+    return {
+      _id: dataGroup._id,
+      name: dataGroup.name,
+      id_admin: dataGroup.id_admin,
+      member: dataGroup.member,
+      invitations: dataGroup.invitations,
+      created_at: dataGroup.created_at,
+    };
   }
 }

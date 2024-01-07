@@ -2,32 +2,25 @@ import Database from '../database/database';
 import { DocInterface } from '../entities/docInterface';
 import { ObjectId } from 'mongodb';
 
-export class ConversationRepository extends Database {
+export class LocationRepository extends Database {
   constructor() {
-    super('conversation');
+    super('location');
   }
 
   public async create(data: DocInterface) {
     return await this.collection.insertOne(data);
   }
 
-  public async readMany() {
-    return await this.collection.find().toArray();
+  public async readMany(id: string) {
+    return await this.collection.find({ id_user: id }).toArray();
   }
 
   public async readOne(id: string) {
     return await this.collection.findOne({ _id: new ObjectId(id) });
   }
 
-  public async update(id: string, data: DocInterface) {
-    return await this.collection.updateOne(
-      {
-        _id: new ObjectId(id),
-      },
-      {
-        $set: data,
-      }
-    );
+  public async getLocationByName(name: string) {
+    return await this.collection.findOne({ name: name });
   }
 
   public async delete(id: string) {
